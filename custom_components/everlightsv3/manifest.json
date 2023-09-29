@@ -1,0 +1,14 @@
+{
+  "domain": "everlightsv3",
+  "name": "Everlights Bridge",
+  "documentation": "https://github.com/theOrakle/everlightsv3",
+  "config_flow": true,
+  "integration_type": "hub",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/theOrakle/everlightsv3/issues",
+  "loggers": ["custom_components.everlightsv3"],
+  "requirements": ["pydash"],
+  "version": "0.1.0",
+  "dependencies": [],
+  "codeowners": ["@theOrakle"]
+}

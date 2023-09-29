@@ -1,0 +1,7 @@
+{
+  "name": "Everlights v3",
+  "domains": ["light"],
+  "homeassistant": "2022.1.0",
+  "iot_class": "Local Polling",
+  "render_readme": true
+}
