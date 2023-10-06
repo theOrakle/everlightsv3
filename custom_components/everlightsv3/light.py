@@ -125,4 +125,4 @@ class EverlightsLight(LightEntity):
             self._attr_brightness = 255
             self._attr_hs_color = color_util.color_RGB_to_hs(*rgb_color) 
             self._attr_rgb_color = rgb_color 
-        self.async_write_ha_state()
+        await self.coordinator.async_request_refresh()
