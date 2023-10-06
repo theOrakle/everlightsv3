@@ -118,8 +118,6 @@ class EverlightsLight(LightEntity):
     async def async_update(self):
         active = pydash.get(self.zone, self.entity.key)
         self._state = "on" if active else "off"
-        _LOGGER.error(active)
-        _LOGGER.error(self._state)
         if self._state == "on":
             pattern = pydash.get(self.coordinator.sequences[self.serial], "pattern")
             hex_color = pydash.get(pattern,"0")
@@ -128,4 +126,3 @@ class EverlightsLight(LightEntity):
             self._attr_hs_color = color_util.color_RGB_to_hs(*rgb_color) 
             self._attr_rgb_color = rgb_color 
         self.async_write_ha_state()
-        return super()._handle_coordinator_update()
