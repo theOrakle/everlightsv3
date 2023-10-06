@@ -2,23 +2,24 @@
 import logging
 
 from homeassistant.const import Platform
-from homeassistant.components.light import LightDeviceClass, LightEntityDescription
+from homeassistant.components.light import LightEntityDescription
 
 _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = "everlightsv3"
 
-ICON = 'mdi:led-on'
+COORDINATOR = "coordinator"
 
-HOST = "api.mill.com"
-URL = f"https://{HOST}/app/v1"
+# In Seconds
+UPDATE_FREQ = 5
 
 PLATFORMS = [
     Platform.LIGHT
 ]
-LIGHTS: dict[str, SensorEntityDescription] = {
+
+LIGHTS: dict[str, LightEntityDescription] = {
     "led": LightEntityDescription(
         name="Everlights",
-        icon=ICON,
-        key="data.attributes.massInBucket")
+        icon="mdi:led-on",
+        key="active")
 }
