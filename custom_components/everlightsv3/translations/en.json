@@ -2,11 +2,10 @@
   "config": {
     "step": {
       "user": {
-        "title": "Account Configuration",
-        "description": "Sign into your mill.com account",
+        "title": "Bridge Configuration",
+        "description": "Enter your Everlights bridge details",
         "data": {
-          "username": "Username",
-          "password": "Password"
+          "host": "Host"
         }
       }
     },
