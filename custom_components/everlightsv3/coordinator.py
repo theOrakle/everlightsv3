@@ -23,7 +23,7 @@ class EverlightsCoordinator(DataUpdateCoordinator):
         )
 
     async def _async_update_data(self):
-        self.sequences = {}
+        self.zones = {}
         try:
             async with aiohttp.ClientSession() as s:
                 async with s.get(self.url+"/sequences") as r:
@@ -38,7 +38,9 @@ class EverlightsCoordinator(DataUpdateCoordinator):
                 async with aiohttp.ClientSession() as s:
                     async with s.get(f"{self.url}/zones/{zone}/sequence") as r:
                         seq = await r.json()
-                self.sequences[zone]=seq
+                pattern = pydash.get(seq,"pattern")
+                state = "on" if pattern else "off"
+                self.zones[zone] = {"state": state, "sequence": seq}
         except Exception as err:
             _LOGGER.error(f"Error communicating with API: {err}")
             raise UpdateFailed(err)
@@ -48,6 +50,9 @@ class EverlightsCoordinator(DataUpdateCoordinator):
             async with aiohttp.ClientSession() as s:
                 async with s.post(f"{self.url}/zones/{zone}/sequence",json=seq) as r:
                     req = await r.json()
+            pattern = pydash.get(seq,"pattern")
+            state = "on" if pattern else "off"
+            self.zones[zone] = {"state": state, "sequence": seq}
         except Exception as err:
             _LOGGER.error(f"Error communicating with API: {err}")
             raise UpdateFailed(err)

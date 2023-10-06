@@ -34,25 +34,22 @@ class EverlightsLight(LightEntity):
 
     def __init__(self,coordinator,zone,entity):
         self.coordinator = coordinator
-        self.zone = zone
+        self.serial = pydash.get(zone,"serial") 
         self.entity = entity
         aliases = []
         for scene in coordinator.scenes:
             aliases.append(scene["alias"])
         self.scenes = coordinator.scenes
         self._name = entity.name
-        self.serial = pydash.get(self.zone,"serial") 
         self._unique_id = f"{DOMAIN}_{self.serial}_{entity.name}"
         self._icon = entity.icon
-        active = pydash.get(self.zone, self.entity.key)
-        self._state = "on" if active else "off"
+        self._state = pydash.get(self.coordinator.zones[self.serial], self.entity.key)
         self._attributes = {}
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self.serial)},
             manufacturer=DOMAIN,
-            model=pydash.get(self.zone,"hardwareVersion"),
+            model=pydash.get(zone,"hardwareVersion"),
             name=self.serial)
-        self.zone = zone
         self._attr_effect_list = aliases
         self._error_reported = False
 
@@ -116,13 +113,16 @@ class EverlightsLight(LightEntity):
         await self.coordinator.async_request_refresh()
 
     async def async_update(self):
-        active = pydash.get(self.zone, self.entity.key)
-        self._state = "on" if active else "off"
+        self._state = pydash.get(self.coordinator.zones[self.serial], self.entity.key)
         if self._state == "on":
-            pattern = pydash.get(self.coordinator.sequences[self.serial], "pattern")
+            pattern = pydash.get(self.coordinator.zones[self.serial], "sequence.pattern")
             hex_color = pydash.get(pattern,"0")
             rgb_color = color_util.rgb_hex_to_rgb_list(hex_color)
             self._attr_brightness = 255
             self._attr_hs_color = color_util.color_RGB_to_hs(*rgb_color) 
             self._attr_rgb_color = rgb_color 
-        await self.coordinator.async_request_refresh()
+        else:
+            self._attr_hs_color = None
+            self._attr_rgb_color = None
+            self._attr_brightness = None
+            self._attr_effect = None

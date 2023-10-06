@@ -21,5 +21,5 @@ LIGHTS: dict[str, LightEntityDescription] = {
     "led": LightEntityDescription(
         name="Everlights",
         icon="mdi:led-on",
-        key="active")
+        key="state")
 }
