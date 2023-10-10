@@ -1,6 +1,5 @@
 import pydash
 import homeassistant.util.color as color_util
-from homeassistant.const import CONF_HOST
 from homeassistant.helpers.entity import Entity, DeviceInfo
 from homeassistant.core import callback
 from homeassistant.components.light import (
@@ -12,14 +11,11 @@ from homeassistant.components.light import (
     LightEntity,
     LightEntityFeature,
 )
-from .const import DOMAIN, COORDINATOR, _LOGGER, LIGHTS
-from .coordinator import EverlightsCoordinator
+from .const import DOMAIN, _LOGGER, LIGHTS
 
 async def async_setup_entry(hass, config, async_add_entities):
 
-    host = config.data[CONF_HOST]
-    coordinator = EverlightsCoordinator(hass, host)
-    await coordinator.async_config_entry_first_refresh()
+    coordinator = hass.data[DOMAIN][config.entry_id]
     entities = []
     for zone in coordinator.devices:
         for field in LIGHTS:
