@@ -5,6 +5,9 @@
         "title": "Bridge Configuration",
         "description": "Enter your Everlights bridge details",
         "data": {
+          "host": "host"
+        },
+        "data_description": {
           "host": "Host"
         }
       }
