@@ -3,20 +3,20 @@ from __future__ import annotations
 import aiohttp
 import voluptuous as vol
 from homeassistant import config_entries, core, exceptions
-from homeassistant.const import CONF_HOSTS
+from homeassistant.const import CONF_HOST
 from .exceptions import ApiException
 from .const import DOMAIN, _LOGGER
 
 DATA_SCHEMA = vol.Schema(
   {
-    vol.Required(CONF_HOSTS): str
+    vol.Required(CONF_HOST): str
   }
 )
 
 async def validate_input(hass: core.HomeAssistant, data):
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get("http://"+data[CONF_HOSTS]+"/v1") as r:
+            async with session.get("http://"+data[CONF_HOST]+"/v1") as r:
                 results = await r.json()
     except:
         _LOGGER.error('Troubles talking to the API')
@@ -34,7 +34,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 info = await validate_input(self.hass, user_input)
-                return self.async_create_entry(title=user_input[CONF_HOSTS], data=info)
+                return self.async_create_entry(title=user_input[CONF_HOST], data=info)
             except AuthenticationError:
                 errors["base"] = "invalid_auth"
             except Exception:
