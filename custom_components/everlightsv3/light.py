@@ -44,7 +44,9 @@ class EverlightsLight(LightEntity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self.serial)},
             manufacturer=DOMAIN,
-            model=pydash.get(zone,"hardwareVersion"),
+            model=f"Zone-{self.serial}",
+            sw_version=pydash.get(zone,"firmwareVersion"),
+            hw_version=pydash.get(zone,"hardwareVersion"),
             name=self.serial)
         self._attr_effect_list = aliases
         self._error_reported = False

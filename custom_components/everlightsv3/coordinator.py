@@ -23,6 +23,7 @@ class EverlightsCoordinator(DataUpdateCoordinator):
         )
 
     async def _async_update_data(self):
+        self.diags = {}
         self.zones = {}
         try:
             async with aiohttp.ClientSession() as s:
@@ -35,6 +36,7 @@ class EverlightsCoordinator(DataUpdateCoordinator):
             self.devices = bridge["zones"]
             for device in self.devices:
                 zone = pydash.get(device,"serial")
+                self.diags[zone] = device 
                 async with aiohttp.ClientSession() as s:
                     async with s.get(f"{self.url}/zones/{zone}/sequence") as r:
                         seq = await r.json()

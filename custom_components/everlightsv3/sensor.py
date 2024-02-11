@@ -1,55 +1,43 @@
-import json
 import pydash
 from homeassistant.helpers.entity import Entity, DeviceInfo
-from .const import DOMAIN, COORDINATOR, _LOGGER, LIGHTS
+from .const import DOMAIN, _LOGGER, SENSORS
 from .coordinator import EverlightsCoordinator
 
-async def async_setup_entry(hass, config, async_add_entities) -> None:
-    creds = {
-        "email":    config.data[CONF_USERNAME],
-        "password": config.data[CONF_PASSWORD]
-    }
-    async with aiohttp.ClientSession() as session:
-        async with session.post(URL+"/tokens",data=creds) as r:
-            results = await r.json()
-    if r.status == 201:
-        auth = {"Authorization": "Bearer " + results.get('token')}
-        async with aiohttp.ClientSession() as session:
-            async with session.get(URL+"/session_init?refresh_token=true",headers=auth) as r:
-                results = await r.json()
-        token = results.get('data')['attributes']['authToken']
-    devices = results.get('data')['attributes']['deviceIds']
+async def async_setup_entry(hass, config, async_add_entities):
 
+    coordinator = hass.data[DOMAIN][config.entry_id]
     entities = []
-    for device in devices:
+    for zone in coordinator.devices:
         for field in SENSORS:
-            entities.append(MillSensor(hass, token, device, SENSORS[field]))
-
+            entities.append(EverlightsSensor(coordinator, zone, SENSORS[field]))
     async_add_entities(entities)
 
-class MillSensor(Entity):
+class EverlightsSensor(Entity):
 
-    def parse_results(self,results):
-        self._state = pydash.get(results,self.path)
-        self._attributes = {}
-
-    def __init__(self,hass,token,device,sensor):
-        self.token = token
-        self.device = device
-        self.path = sensor.key
-        self._name = sensor.name
-        self._icon = sensor.icon
-        self._state = None
+    def __init__(self,coordinator,zone,entity):
+        self.coordinator = coordinator
+        self.serial = pydash.get(zone,"serial") 
+        self.entity = entity
+        aliases = []
+        self._name = entity.name
+        self._unique_id = f"{DOMAIN}_{self.serial}_{entity.name}"
+        self._icon = entity.icon
+        self._device_class = entity.device_class
+        self._state = pydash.get(self.coordinator.diags[self.serial], self.entity.key)
         self._attributes = {}
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, device)},
+            identifiers={(DOMAIN, self.serial)},
             manufacturer=DOMAIN,
-            model="1",
-            name=device)
+            model=f"Zone-{self.serial}",
+            sw_version=pydash.get(zone,"firmwareVersion"),
+            hw_version=pydash.get(zone,"hardwareVersion"),
+            name=self.serial)
+        self._attr_effect_list = aliases
+        self._error_reported = False
 
     @property
     def unique_id(self):
-        return f"{DOMAIN}_{self.device}_{self._name}"
+        return self._unique_id
 
     @property
     def name(self):
@@ -60,6 +48,10 @@ class MillSensor(Entity):
         return self._icon
 
     @property
+    def device_class(self):
+        return self._device_class
+
+    @property
     def state(self):
         return self._state
 
@@ -67,24 +59,5 @@ class MillSensor(Entity):
     def state_attributes(self):
         return self._attributes
 
-    async def async_update(self) -> None:
-        url = f"wss://{HOST}/app/v1/websocket/device"
-        headers = {
-            'Host':                 HOST,
-            'Upgrade':              'websocket',
-            'Origin':               f'https://{HOST}',
-            'X-Device-Id':          self.device,
-            'X-Authorization':      self.token,
-            'Connection':           'Upgrade'
-        }
-
-        try:
-            async with websockets.connect(extra_headers=headers,uri=url) as ws:
-                results = await ws.recv()
-                #if results.status_code != 200:
-                #    self.refresh_token()
-                #results = await ws.recv()
-        except:
-            _LOGGER.error("Failed to communicate to the API")
-
-        self.parse_results(json.loads(results))
+    async def async_update(self):
+        self._state = pydash.get(self.coordinator.diags[self.serial], self.entity.key)

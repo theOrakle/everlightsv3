@@ -8,7 +8,7 @@ from .coordinator import EverlightsCoordinator
 
 PLATFORMS = [
     Platform.LIGHT,
-#    Platform.SENSOR
+    Platform.SENSOR
 ]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
