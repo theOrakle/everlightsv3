@@ -36,7 +36,7 @@ class MySensor(Entity):
 
     @property
     def unique_id(self):
-        return f"{DOMAIN}_{self.serial}_{entity.name}"
+        return f"{DOMAIN}_{self.serial}_{self._name}"
 
     @property
     def name(self):
