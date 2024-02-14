@@ -11,8 +11,7 @@ from homeassistant.helpers.update_coordinator import (
 )
 from .const import DOMAIN, _LOGGER, UPDATE_FREQ
 
-class EverlightsCoordinator(DataUpdateCoordinator):
-
+class MyCoordinator(DataUpdateCoordinator):
     def __init__(self, hass, host):
         self.url = f'http://{host}/v1'
         super().__init__(

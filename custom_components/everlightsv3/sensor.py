@@ -1,7 +1,7 @@
 import pydash
 from homeassistant.helpers.entity import Entity, DeviceInfo
 from .const import DOMAIN, _LOGGER, SENSORS
-from .coordinator import EverlightsCoordinator
+from .coordinator import MyCoordinator
 
 async def async_setup_entry(hass, config, async_add_entities):
 
@@ -9,10 +9,10 @@ async def async_setup_entry(hass, config, async_add_entities):
     entities = []
     for zone in coordinator.devices:
         for field in SENSORS:
-            entities.append(EverlightsSensor(coordinator, zone, SENSORS[field]))
+            entities.append(MySensor(coordinator, zone, SENSORS[field]))
     async_add_entities(entities)
 
-class EverlightsSensor(Entity):
+class MySensor(Entity):
 
     def __init__(self,coordinator,zone,entity):
         self.coordinator = coordinator
@@ -20,7 +20,6 @@ class EverlightsSensor(Entity):
         self.entity = entity
         aliases = []
         self._name = entity.name
-        self._unique_id = f"{DOMAIN}_{self.serial}_{entity.name}"
         self._icon = entity.icon
         self._device_class = entity.device_class
         self._state = pydash.get(self.coordinator.diags[self.serial], self.entity.key)
@@ -37,7 +36,7 @@ class EverlightsSensor(Entity):
 
     @property
     def unique_id(self):
-        return self._unique_id
+        return f"{DOMAIN}_{self.serial}_{entity.name}"
 
     @property
     def name(self):

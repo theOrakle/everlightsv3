@@ -27,8 +27,6 @@ async def validate_input(hass: core.HomeAssistant, data):
         raise ApiException()
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    VERSION = 1
-
     async def async_step_user(self, user_input=None):
         errors = {}
         if user_input is not None:
@@ -40,7 +38,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except Exception:
                 _LOGGER.exception("Unexpected exception")
                 errors["base"] = "unknown"
-
         return self.async_show_form(
             step_id="user", data_schema=DATA_SCHEMA, errors=errors
         )   

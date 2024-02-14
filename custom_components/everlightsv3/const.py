@@ -9,8 +9,6 @@ _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = "everlightsv3"
 
-COORDINATOR = "coordinator"
-
 # In Seconds
 UPDATE_FREQ = 5
 

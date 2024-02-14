@@ -14,16 +14,14 @@ from homeassistant.components.light import (
 from .const import DOMAIN, _LOGGER, LIGHTS
 
 async def async_setup_entry(hass, config, async_add_entities):
-
     coordinator = hass.data[DOMAIN][config.entry_id]
     entities = []
     for zone in coordinator.devices:
         for field in LIGHTS:
-            entities.append(EverlightsLight(coordinator, zone, LIGHTS[field]))
+            entities.append(MyLight(coordinator, zone, LIGHTS[field]))
     async_add_entities(entities)
 
-class EverlightsLight(LightEntity):
-
+class MyLight(LightEntity):
     _attr_color_mode = ColorMode.HS
     _attr_supported_color_modes = {ColorMode.HS}
     _attr_supported_features = LightEntityFeature.EFFECT
@@ -37,7 +35,6 @@ class EverlightsLight(LightEntity):
             aliases.append(scene["alias"])
         self.scenes = coordinator.scenes
         self._name = entity.name
-        self._unique_id = f"{DOMAIN}_{self.serial}_{entity.name}"
         self._icon = entity.icon
         self._state = pydash.get(self.coordinator.zones[self.serial], self.entity.key)
         self._attributes = {}
@@ -53,7 +50,7 @@ class EverlightsLight(LightEntity):
 
     @property
     def unique_id(self):
-        return self._unique_id
+        return f"{DOMAIN}_{self.serial}_{self._name}"
 
     @property
     def name(self):
