@@ -1,0 +1,14 @@
+{
+  "domain": "everlights",
+  "name": "Everlights",
+  "documentation": "https://github.com/theOrakle/everlights",
+  "config_flow": true,
+  "integration_type": "hub",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/theOrakle/everlights/issues",
+  "loggers": ["custom_components.everlights"],
+  "requirements": [],
+  "version": "1.0.1",
+  "dependencies": [],
+  "codeowners": ["@theOrakle"]
+}

@@ -1,6 +1,8 @@
 # Everlights v3 for Home Assistant
 
-Home Assistant integration for Everlights (v3) Permanent Holiday Lights.
+Home Assistant integration for Everlights v3 permanent holiday lights.
+
+**Note: This will override the existing everlights domain.  DO NOT USE if you use the older version from the core components**
 
 # Installation
 
@@ -19,7 +21,7 @@ There are two main ways to install this custom component within your Home Assist
 
 2. Manual Installation:
    1. Download or clone this repository
-   2. Copy the contents of the folder **custom_components/everlightsv3** into the same file structure on your Home Assistant instance
+   2. Copy the contents of the folder **custom_components/everlights** into the same file structure on your Home Assistant instance
       - An easy way to do this is using the [Samba add-on](https://www.home-assistant.io/getting-started/configuration/#editing-configuration-via-sambawindows-networking), but feel free to do so however you want
    3. Restart your Home Assistant instance and then proceed to the _Configuration_ section below.
 
@@ -31,7 +33,7 @@ There is a config flow for this integration. After installing the custom compone
 
 1. Go to **Configuration**->**Integrations**
 2. Click **+ ADD INTEGRATION** to setup a new integration
-3. Search for **Everlightsv3** and click on it
+3. Search for **Everlights v3** and click on it
 4. You will be guided through the rest of the setup process via the config flow
 
 ---
