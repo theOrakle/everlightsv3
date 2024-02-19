@@ -1,7 +1,7 @@
 """Custom integration to integrate everlights with Home Assistant.
 
 For more details about this integration, please refer to
-https://github.com/theOrakle/everlights
+https://github.com/theOrakle/everlightsv3
 """
 from __future__ import annotations
 

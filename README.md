@@ -2,7 +2,7 @@
 
 Home Assistant integration for Everlights v3 permanent holiday lights.
 
-**Note: This will override the existing everlights domain.  DO NOT USE if you use the older version from the core components**
+**Note: This will override the existing everlights domain.  DO NOT USE if you use the older version from the core components.**
 
 # Installation
 
