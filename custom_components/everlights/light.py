@@ -53,7 +53,7 @@ class EverlightsLight(EverlightsEntity, LightEntity):
         serial,
     ) -> None:
         """Initialize the light class."""
-        super().__init__(coordinator, serial, entity_description)
+        super().__init__(coordinator, entity_description, serial)
         self.entity_description = entity_description
         self.serial = serial
         aliases = []
@@ -65,7 +65,8 @@ class EverlightsLight(EverlightsEntity, LightEntity):
     @property
     def is_on(self) -> bool:
         """Return true if the light is on."""
-        pattern = self.coordinator.data[self.serial].get(self.entity_description.key)
+        desc = self.entity_description
+        pattern = self.coordinator.data[self.serial].get(desc.key)
         state = not(pattern == [])
         if state:
             rgb_color = color_util.rgb_hex_to_rgb_list(pattern[0])

@@ -15,8 +15,8 @@ class EverlightsEntity(CoordinatorEntity):
     def __init__(
         self, 
         coordinator: EverlightsDataUpdateCoordinator, 
-        serial, 
         entity_description,
+        serial, 
     ) -> None:
         """Initialize."""
         super().__init__(coordinator)

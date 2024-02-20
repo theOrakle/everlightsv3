@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription, SensorDeviceClass
+from homeassistant.const import EntityCategory
 
 from .const import DOMAIN
 from .coordinator import EverlightsDataUpdateCoordinator
@@ -16,6 +17,7 @@ ENTITY_DESCRIPTIONS = (
         icon="mdi:signal-variant",
         device_class=SensorDeviceClass.SIGNAL_STRENGTH,
         native_unit_of_measurement="dBm",
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="snr",
@@ -23,18 +25,21 @@ ENTITY_DESCRIPTIONS = (
         icon="mdi:sine-wave",
         device_class=SensorDeviceClass.SIGNAL_STRENGTH,
         native_unit_of_measurement="dB",
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="lastRequestDate",
         name="Last Request Date",
         icon="mdi:timeline-clock-outline",
         device_class=SensorDeviceClass.DATE,
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="lastResponseDate",
         name="Last Response Time",
         icon="mdi:timeline-clock",
         device_class=SensorDeviceClass.DATE,
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
 )
 
@@ -63,15 +68,16 @@ class EverlightsSensor(EverlightsEntity, SensorEntity):
         serial,
     ) -> None:
         """Initialize the sensor class."""
-        super().__init__(coordinator,serial,entity_description)
+        super().__init__(coordinator,entity_description,serial)
         self.entity_description = entity_description
         self.serial = serial
 
     @property
     def native_value(self) -> str:
         """Return the native value of the sensor."""
-        value = self.coordinator.data[self.serial].get(self.entity_description.key)
-        if self.entity_description.device_class == SensorDeviceClass.DATE:
+        desc = self.entity_description
+        value = self.coordinator.data[self.serial].get(desc.key)
+        if desc.device_class == SensorDeviceClass.DATE:
             return dt.strptime(value, "%Y-%m-%dT%H:%M:%S.%f%z")
         else:
             return value
