@@ -24,7 +24,7 @@ class EverlightsEntity(CoordinatorEntity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, serial)},
             name=serial,
-            model=VERSION,
+            model=f"Integration {VERSION}",
             manufacturer=DOMAIN.capitalize(),
             sw_version=coordinator.data[serial].get("firmwareVersion"),
             hw_version=coordinator.data[serial].get("hardwareVersion"),
