@@ -7,6 +7,10 @@ import socket
 import aiohttp
 import async_timeout
 
+from datetime import datetime
+
+from .const import LOGGER 
+
 class EverlightsApiClientError(Exception):
     """Exception to indicate a general API error."""
 
@@ -42,11 +46,16 @@ class EverlightsApiClient:
             self.sequences = await self._api_wrapper(
                 method="get", url=f"http://{self._host}/v1/sequences"
             )
+            time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+            json = {"time": time}
+            await self._api_wrapper(
+                method="put", url=f"http://{self._host}/v1/time", data=json
+            )
 
     async def async_get_data(self) -> any:
         """Get data from the API."""
-        await self.async_load_sequences()
         data = {}
+        await self.async_load_sequences()
         zones = await self._api_wrapper(
             method="get", url=f"http://{self._host}/v1/zones"
         )
@@ -58,11 +67,12 @@ class EverlightsApiClient:
             del zone["serial"]
             zone.update(sequence)
             data[serial] = zone
+        LOGGER.debug(data)
         return data
 
     async def async_set_sequence(self, serial, sequence: str) -> any:
         """Set data from the API."""
-        return await self._api_wrapper(
+        await self._api_wrapper(
             method="post",
             url=f"http://{self._host}/v1/zones/{serial}/sequence",
             data=sequence
