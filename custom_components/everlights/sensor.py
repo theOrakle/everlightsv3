@@ -31,14 +31,14 @@ ENTITY_DESCRIPTIONS = (
         key="lastRequestDate",
         name="Last Request Date",
         icon="mdi:timeline-clock-outline",
-        device_class=SensorDeviceClass.DATE,
+        device_class=SensorDeviceClass.TIMESTAMP,
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="lastResponseDate",
         name="Last Response Time",
         icon="mdi:timeline-clock",
-        device_class=SensorDeviceClass.DATE,
+        device_class=SensorDeviceClass.TIMESTAMP,
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
 )
@@ -77,7 +77,7 @@ class EverlightsSensor(EverlightsEntity, SensorEntity):
         """Return the native value of the sensor."""
         desc = self.entity_description
         value = self.coordinator.data[self.serial].get(desc.key)
-        if desc.device_class == SensorDeviceClass.DATE:
+        if desc.device_class == SensorDeviceClass.TIMESTAMP:
             return dt.strptime(value, "%Y-%m-%dT%H:%M:%S.%f%z")
         else:
             return value

@@ -7,8 +7,6 @@ import socket
 import aiohttp
 import async_timeout
 
-from datetime import datetime
-
 from .const import LOGGER 
 
 class EverlightsApiClientError(Exception):
@@ -45,11 +43,6 @@ class EverlightsApiClient:
         if self.sequences is None:
             self.sequences = await self._api_wrapper(
                 method="get", url=f"http://{self._host}/v1/sequences"
-            )
-            time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
-            json = {"time": time}
-            await self._api_wrapper(
-                method="put", url=f"http://{self._host}/v1/time", data=json
             )
 
     async def async_get_data(self) -> any:

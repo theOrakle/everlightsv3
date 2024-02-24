@@ -106,4 +106,8 @@ class EverlightsLight(EverlightsEntity, LightEntity):
         """Turn off the light."""
         sequence = {"pattern":[],"effects":[]}
         await self.coordinator.client.async_set_sequence(self.serial, sequence)
+        self._attr_hs_color = None
+        self._attr_rgb_color = None
+        self._attr_brightness = None
+        self._attr_effect = None
         await self.coordinator.async_request_refresh()
