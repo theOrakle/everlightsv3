@@ -70,7 +70,12 @@ class EverlightsSensor(EverlightsEntity, SensorEntity):
         """Initialize the sensor class."""
         super().__init__(coordinator,entity_description,serial)
         self.entity_description = entity_description
+        self._name = f'{serial} {entity_description.name}'
         self.serial = serial
+
+    @property
+    def name(self):
+        return self._name
 
     @property
     def native_value(self) -> str:

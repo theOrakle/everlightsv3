@@ -56,11 +56,17 @@ class EverlightsLight(EverlightsEntity, LightEntity):
         super().__init__(coordinator, entity_description, serial)
         self.entity_description = entity_description
         self.serial = serial
+        self._name = f'{serial} {entity_description.name}'
         aliases = []
         for sequence in coordinator.client.sequences:
             aliases.append(sequence["alias"])
         self._attr_effect_list = aliases
         self._attr_effect_list.sort()
+
+    @property
+    def name(self):
+        return self._name
+
 
     @property
     def is_on(self) -> bool:
