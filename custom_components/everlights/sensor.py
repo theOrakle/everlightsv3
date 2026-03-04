@@ -1,14 +1,14 @@
 """Sensor platform for everlights."""
 from __future__ import annotations
 
+from datetime import datetime as dt
+
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription, SensorDeviceClass
 from homeassistant.const import EntityCategory
 
-from .const import DOMAIN
+from .const import DOMAIN, LOGGER
 from .coordinator import EverlightsDataUpdateCoordinator
 from .entity import EverlightsEntity
-
-from datetime import datetime as dt
 
 ENTITY_DESCRIPTIONS = (
     SensorEntityDescription(
@@ -83,6 +83,16 @@ class EverlightsSensor(EverlightsEntity, SensorEntity):
         desc = self.entity_description
         value = self.coordinator.data[self.serial].get(desc.key)
         if desc.device_class == SensorDeviceClass.TIMESTAMP:
-            return dt.strptime(value, "%Y-%m-%dT%H:%M:%S.%f%z")
-        else:
-            return value
+            if not value:
+                return None
+            try:
+                return dt.fromisoformat(value)
+            except (TypeError, ValueError):
+                LOGGER.warning(
+                    "Invalid timestamp for %s (%s): %s",
+                    self.serial,
+                    desc.key,
+                    value,
+                )
+                return None
+        return value

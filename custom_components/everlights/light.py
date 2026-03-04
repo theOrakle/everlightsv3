@@ -1,18 +1,19 @@
 """Light platform for everlights."""
 from __future__ import annotations
 
+from typing import Any
+
 import homeassistant.util.color as color_util
 from homeassistant.components.light import (
-    LightEntity, 
+    LightEntity,
     LightEntityDescription,
     LightEntityFeature,
-    ATTR_BRIGHTNESS,
     ATTR_EFFECT,
     ATTR_HS_COLOR,
     ColorMode,
 )
 
-from .const import DOMAIN
+from .const import DOMAIN, LOGGER
 from .coordinator import EverlightsDataUpdateCoordinator
 from .entity import EverlightsEntity
 
@@ -57,10 +58,12 @@ class EverlightsLight(EverlightsEntity, LightEntity):
         self.entity_description = entity_description
         self.serial = serial
         self._name = f'{serial} {entity_description.name}'
-        aliases = []
-        for sequence in coordinator.client.sequences:
-            aliases.append(sequence["alias"])
-        self._attr_effect_list = aliases
+        self._sequence_by_alias: dict[str, dict[str, Any]] = {
+            sequence["alias"]: sequence
+            for sequence in coordinator.client.sequences
+            if "alias" in sequence
+        }
+        self._attr_effect_list = list(self._sequence_by_alias)
         self._attr_effect_list.sort()
 
     @property
@@ -86,21 +89,24 @@ class EverlightsLight(EverlightsEntity, LightEntity):
             self._attr_effect = None
         return state
 
-    async def async_turn_on(self, **_: any) -> None:
+    async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn on the light."""
-        fx=[]
-        effect = _.get(ATTR_EFFECT, self._attr_effect)
-        hs_color = _.get(ATTR_HS_COLOR, self._attr_hs_color)
+        fx = []
+        effect = kwargs.get(ATTR_EFFECT, self._attr_effect)
+        hs_color = kwargs.get(ATTR_HS_COLOR, self._attr_hs_color)
         if hs_color is None:
-            hs_color = (0,100)
-        rgb_color = color_util.color_hs_to_RGB(hs_color[0],hs_color[1])
+            hs_color = (0, 100)
+        rgb_color = color_util.color_hs_to_RGB(hs_color[0], hs_color[1])
         hex_color = [color_util.color_rgb_to_hex(*rgb_color)]
         if effect is not None:
-            sequences = self.coordinator.client.sequences
-            sequence = [x for x in sequences if "alias" in x and x["alias"]==effect][0]
-            hex_color=sequence["pattern"]
-            fx=sequence["effects"]
-        sequence = {"pattern":hex_color,"effects":fx}
+            sequence = self._sequence_by_alias.get(effect)
+            if sequence is None:
+                LOGGER.warning("Unknown effect '%s' for zone %s", effect, self.serial)
+                effect = None
+            else:
+                hex_color = sequence.get("pattern", hex_color)
+                fx = sequence.get("effects", fx)
+        sequence = {"pattern": hex_color, "effects": fx}
         await self.coordinator.client.async_set_sequence(self.serial, sequence)
         self._attr_brightness = 255
         self._attr_hs_color = hs_color
