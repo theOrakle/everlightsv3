@@ -57,6 +57,10 @@ class EverlightsApiClient:
         zones = await self._api_wrapper(
             method="get", url=f"http://{self._host}/v1/zones"
         )
+        if not isinstance(zones, list):
+            raise EverlightsApiClientError(
+                f"Unexpected zones payload type: {type(zones).__name__}"
+            )
         for zone in zones:
             serial = zone.get("serial")
             if not serial:
@@ -138,6 +142,8 @@ class EverlightsApiClient:
             raise EverlightsApiClientCommunicationError(
                 f"Error fetching information from {url}: {exception}",
             ) from exception
+        except EverlightsApiClientError:
+            raise
         except Exception as exception:  # pylint: disable=broad-except
             raise EverlightsApiClientError(
                 f"Unexpected error fetching information from {url}: {exception}"

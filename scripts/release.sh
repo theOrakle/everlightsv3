@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ $# -lt 1 ]]; then
-  echo "Usage: $0 \"commit message\" [major|minor|patch]"
-  exit 1
-fi
-
-MSG="$1"
-PART="${2:-patch}"
+PART="${1:-patch}"
+MSG="${2:-}"
 MANIFEST="custom_components/everlights/manifest.json"
 
 if [[ ! -f "$MANIFEST" ]]; then
@@ -17,6 +12,13 @@ fi
 
 if [[ "$PART" != "major" && "$PART" != "minor" && "$PART" != "patch" ]]; then
   echo "Version part must be one of: major, minor, patch"
+  exit 1
+fi
+
+git rev-parse --is-inside-work-tree >/dev/null
+
+if ! git diff --quiet -- "$MANIFEST"; then
+  echo "$MANIFEST already has local changes. Commit/stash/revert first."
   exit 1
 fi
 
@@ -39,6 +41,12 @@ case "$PART" in
 esac
 
 NEW_VER="${MAJOR}.${MINOR}.${PATCH}"
+MSG="${MSG:-Release ${NEW_VER}}"
+
+if git rev-parse --verify --quiet "refs/tags/$NEW_VER" >/dev/null; then
+  echo "Tag $NEW_VER already exists locally."
+  exit 1
+fi
 
 TMP="$(mktemp)"
 jq --arg v "$NEW_VER" '.version = $v' "$MANIFEST" > "$TMP"

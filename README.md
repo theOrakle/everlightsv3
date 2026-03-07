@@ -36,4 +36,13 @@ There is a config flow for this integration. After installing the custom compone
 3. Search for **Everlights v3** and click on it
 4. You will be guided through the rest of the setup process via the config flow
 
+# Development Releases
+
+If you are developing locally and publishing through GitHub Releases:
+
+1. Finalize code changes.
+2. Run `./scripts/release.sh [patch|minor|major] ["commit message"]`.
+3. If push fails due network/session issues, run `./scripts/push-release.sh [tag]`.
+4. Create the GitHub Release from the pushed tag.
+
 ---

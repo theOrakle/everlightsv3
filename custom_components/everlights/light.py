@@ -51,7 +51,7 @@ class EverlightsLight(EverlightsEntity, LightEntity):
         self,
         coordinator: EverlightsDataUpdateCoordinator,
         entity_description: LightEntityDescription,
-        serial,
+        serial: str,
     ) -> None:
         """Initialize the light class."""
         super().__init__(coordinator, entity_description, serial)
@@ -67,7 +67,7 @@ class EverlightsLight(EverlightsEntity, LightEntity):
         self._attr_effect_list.sort()
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
 
@@ -75,8 +75,8 @@ class EverlightsLight(EverlightsEntity, LightEntity):
     def is_on(self) -> bool:
         """Return true if the light is on."""
         desc = self.entity_description
-        pattern = self.coordinator.data[self.serial].get(desc.key)
-        state = not(pattern == [])
+        pattern = self.coordinator.data[self.serial].get(desc.key) or []
+        state = bool(pattern)
         if state:
             rgb_color = color_util.rgb_hex_to_rgb_list(pattern[0])
             self._attr_brightness = 255
@@ -114,9 +114,9 @@ class EverlightsLight(EverlightsEntity, LightEntity):
         self._attr_effect = effect
         await self.coordinator.async_request_refresh()
 
-    async def async_turn_off(self, **_: any) -> None:
+    async def async_turn_off(self, **_: Any) -> None:
         """Turn off the light."""
-        sequence = {"pattern":[],"effects":[]}
+        sequence = {"pattern": [], "effects": []}
         await self.coordinator.client.async_set_sequence(self.serial, sequence)
         self._attr_hs_color = None
         self._attr_rgb_color = None

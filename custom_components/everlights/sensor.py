@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from datetime import datetime as dt
+from typing import Any
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription, SensorDeviceClass
 from homeassistant.const import EntityCategory
@@ -65,7 +66,7 @@ class EverlightsSensor(EverlightsEntity, SensorEntity):
         self,
         coordinator: EverlightsDataUpdateCoordinator,
         entity_description: SensorEntityDescription,
-        serial,
+        serial: str,
     ) -> None:
         """Initialize the sensor class."""
         super().__init__(coordinator,entity_description,serial)
@@ -74,11 +75,11 @@ class EverlightsSensor(EverlightsEntity, SensorEntity):
         self.serial = serial
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @property
-    def native_value(self) -> str:
+    def native_value(self) -> Any:
         """Return the native value of the sensor."""
         desc = self.entity_description
         value = self.coordinator.data[self.serial].get(desc.key)
@@ -86,7 +87,8 @@ class EverlightsSensor(EverlightsEntity, SensorEntity):
             if not value:
                 return None
             try:
-                return dt.fromisoformat(value)
+                # Bridge returns UTC with trailing Z; fromisoformat expects +00:00.
+                return dt.fromisoformat(value.replace("Z", "+00:00"))
             except (TypeError, ValueError):
                 LOGGER.warning(
                     "Invalid timestamp for %s (%s): %s",

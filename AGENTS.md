@@ -16,6 +16,11 @@ This repository uses this release flow:
 - `finalize minor release` -> minor release
 - `finalize major release` -> major release
 
+## Script Commands
+
+- Create release commit + tag + push: `./scripts/release.sh [patch|minor|major] ["commit message"]`
+- Push already-created release/tag: `./scripts/push-release.sh [tag]`
+
 ## Rules
 
 - Keep version source of truth in `custom_components/everlights/manifest.json`.
