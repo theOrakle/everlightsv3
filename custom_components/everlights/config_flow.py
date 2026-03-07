@@ -5,7 +5,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_HOST
 from homeassistant.helpers import selector
-from homeassistant.helpers.aiohttp_client import async_create_clientsession
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import (
     EverlightsApiClient,
@@ -65,6 +65,6 @@ class EverlightsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Validate host."""
         client = EverlightsApiClient(
             host=host,
-            session=async_create_clientsession(self.hass),
+            session=async_get_clientsession(self.hass),
         )
         await client.async_get_data()
