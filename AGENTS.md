@@ -9,6 +9,13 @@ This repository uses this release flow:
 5. Codex pushes `main` and the tag.
 6. Developer publishes GitHub Release from that tag.
 
+## Trigger Phrases
+
+- `finalize release` -> patch release
+- `finalize patch release` -> patch release
+- `finalize minor release` -> minor release
+- `finalize major release` -> major release
+
 ## Rules
 
 - Keep version source of truth in `custom_components/everlights/manifest.json`.
