@@ -29,5 +29,5 @@ class EverlightsEntity(CoordinatorEntity):
             model=f"Integration {VERSION}",
             manufacturer=DOMAIN.capitalize(),
             sw_version=zone_data.get("firmwareVersion"),
-            hw_version=zone_data.get("hardwareVersion"),
+            hw_version=str(v) if (v := zone_data.get("hardwareVersion")) is not None else None,
         )

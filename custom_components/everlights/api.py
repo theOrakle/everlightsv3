@@ -12,6 +12,13 @@ import async_timeout
 
 from .const import LOGGER
 
+DEFAULT_HEADERS = {
+    "Accept": "application/json",
+    # The EverLights bridge is prone to dropping reused keep-alive connections.
+    "Connection": "close",
+}
+
+
 class EverlightsApiClientError(Exception):
     """Exception to indicate a general API error."""
 
@@ -54,7 +61,7 @@ class EverlightsApiClient:
         """Get data from the API."""
         data: dict[str, dict[str, Any]] = {}
         await self.async_load_sequences()
-        zones = await self._api_wrapper(
+        zones = await self._api_wrapper_with_retries(
             method="get", url=f"http://{self._host}/v1/zones"
         )
         if not isinstance(zones, list):
@@ -66,7 +73,7 @@ class EverlightsApiClient:
             if not serial:
                 LOGGER.warning("Skipping zone without serial: %s", zone)
                 continue
-            sequence = await self._api_wrapper(
+            sequence = await self._api_wrapper_with_retries(
                 method="get", url=f"http://{self._host}/v1/zones/{serial}/sequence"
             )
             zone.pop("serial", None)
@@ -103,6 +110,35 @@ class EverlightsApiClient:
                 f"Error setting sequence for zone {serial}"
             )
 
+    async def _api_wrapper_with_retries(
+        self,
+        method: str,
+        url: str,
+        data: dict | None = None,
+        headers: dict | None = None,
+        attempts: int = 3,
+    ) -> Any:
+        """Retry transient communication failures for idempotent requests."""
+        last_exception: EverlightsApiClientCommunicationError | None = None
+
+        for attempt in range(1, attempts + 1):
+            try:
+                return await self._api_wrapper(
+                    method=method,
+                    url=url,
+                    data=data,
+                    headers=headers,
+                )
+            except EverlightsApiClientCommunicationError as exception:
+                last_exception = exception
+                if attempt == attempts:
+                    break
+                await asyncio.sleep(0.4 * attempt)
+
+        raise last_exception or EverlightsApiClientCommunicationError(
+            f"Error fetching information from {url}"
+        )
+
     async def _api_wrapper(
         self,
         method: str,
@@ -116,7 +152,7 @@ class EverlightsApiClient:
                 async with self._session.request(
                     method=method,
                     url=url,
-                    headers=headers,
+                    headers=DEFAULT_HEADERS | (headers or {}),
                     json=data,
                 ) as response:
                     if response.status in (401, 403):
