@@ -75,7 +75,7 @@ class EverlightsLight(EverlightsEntity, LightEntity):
     def is_on(self) -> bool:
         """Return true if the light is on."""
         desc = self.entity_description
-        pattern = self.coordinator.data[self.serial].get(desc.key) or []
+        pattern = self.coordinator.data.get(self.serial, {}).get(desc.key) or []
         state = bool(pattern)
         if state:
             rgb_color = color_util.rgb_hex_to_rgb_list(pattern[0])

@@ -82,7 +82,7 @@ class EverlightsSensor(EverlightsEntity, SensorEntity):
     def native_value(self) -> Any:
         """Return the native value of the sensor."""
         desc = self.entity_description
-        value = self.coordinator.data[self.serial].get(desc.key)
+        value = self.coordinator.data.get(self.serial, {}).get(desc.key)
         if desc.device_class == SensorDeviceClass.TIMESTAMP:
             if not value:
                 return None
