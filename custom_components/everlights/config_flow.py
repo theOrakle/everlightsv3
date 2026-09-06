@@ -16,6 +16,16 @@ from .api import (
 from .const import DOMAIN, LOGGER
 
 
+def _host_schema(default: str | None = None) -> vol.Schema:
+    return vol.Schema(
+        {
+            vol.Required(CONF_HOST, default=default): selector.TextSelector(
+                selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
+            ),
+        }
+    )
+
+
 class EverlightsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for Everlights."""
 
@@ -49,15 +59,39 @@ class EverlightsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_HOST): selector.TextSelector(
-                        selector.TextSelectorConfig(
-                            type=selector.TextSelectorType.TEXT
-                        ),
-                    ),
-                }
-            ),
+            data_schema=_host_schema(),
+            errors=_errors,
+        )
+
+    async def async_step_reconfigure(
+        self,
+        user_input: dict | None = None,
+    ) -> config_entries.FlowResult:
+        """Let an existing entry's bridge host be edited (e.g. after a DHCP change)."""
+        _errors: dict[str, str] = {}
+        reconfigure_entry = self._get_reconfigure_entry()
+        if user_input is not None:
+            try:
+                await self._test_connection(host=user_input[CONF_HOST])
+            except EverlightsApiClientAuthenticationError as exception:
+                LOGGER.warning(exception)
+                _errors["base"] = "auth"
+            except EverlightsApiClientCommunicationError as exception:
+                LOGGER.error(exception)
+                _errors["base"] = "connection"
+            except EverlightsApiClientError as exception:
+                LOGGER.exception(exception)
+                _errors["base"] = "unknown"
+            else:
+                return self.async_update_reload_and_abort(
+                    reconfigure_entry,
+                    data_updates=user_input,
+                    reason="reconfigure_successful",
+                )
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=_host_schema(default=reconfigure_entry.data.get(CONF_HOST)),
             errors=_errors,
         )
 

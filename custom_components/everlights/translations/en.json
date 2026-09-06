@@ -7,10 +7,18 @@
         "data": {
           "host": "Host"
         }
+      },
+      "reconfigure": {
+        "title": "Update Everlights Bridge",
+        "description": "Update the host if your bridge's IP address has changed.",
+        "data": {
+          "host": "Host"
+        }
       }
     },
     "abort": {
-      "already_configured": "Device is already configured"
+      "already_configured": "Device is already configured",
+      "reconfigure_successful": "Bridge settings updated successfully."
     },
     "error": {
       "auth": "Username/Password is wrong.",
