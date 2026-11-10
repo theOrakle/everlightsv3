@@ -50,6 +50,7 @@ def mock_client() -> Generator[MagicMock]:
         patch("custom_components.everlights.config_flow.EverlightsApiClient", new=client_cls),
     ):
         client = client_cls.return_value
+        client.local_control = True
         client.sequences = [{"alias": "Rainbow", "pattern": ["00ff00"], "effects": []}]
         client.async_get_data = AsyncMock(return_value={SERIAL: dict(ZONE_DATA)})
         client.async_set_sequence = AsyncMock()

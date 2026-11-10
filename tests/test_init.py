@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import CONF_HOST
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import device_registry as dr, issue_registry as ir
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.everlights.api import (
@@ -97,3 +97,19 @@ async def test_rejected_request_marks_setup_error(
     mock_config_entry.add_to_hass(hass)
     await hass.config_entries.async_setup(mock_config_entry.entry_id)
     assert mock_config_entry.state is ConfigEntryState.SETUP_ERROR
+
+
+async def test_local_control_removed_keeps_sensors(
+    hass: HomeAssistant, mock_client: MagicMock, mock_config_entry: MockConfigEntry
+) -> None:
+    """Firmware B5010+ (410 Gone): setup succeeds, sensors work, light unavailable."""
+    mock_client.local_control = False
+    mock_client.sequences = None
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+    assert mock_config_entry.state is ConfigEntryState.LOADED
+    assert hass.states.get("light.abc123_everlights").state == "unavailable"
+    assert hass.states.get("sensor.abc123_signal_strength").state == "-61"
+    issue_id = f"local_control_removed_{mock_config_entry.entry_id}"
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None

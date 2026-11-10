@@ -32,6 +32,7 @@ class EverlightsFlowHandler(ConfigFlow, domain=DOMAIN):
     """Config flow for Everlights."""
 
     VERSION = 1
+    _local_control = True
 
     async def _validate(self, host: str) -> str | None:
         """Test the bridge and return a flow error key, or None when it works."""
@@ -56,7 +57,11 @@ class EverlightsFlowHandler(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
         if user_input is not None:
             host = user_input[CONF_HOST].strip()
-            if error := await self._validate(host):
+            error = await self._validate(host)
+            if error is None and not self._local_control:
+                # Nothing could be controlled, so don't add a new bridge like this.
+                error = "local_control_removed"
+            if error:
                 errors["base"] = error
             else:
                 await self.async_set_unique_id(host.lower())
@@ -109,3 +114,4 @@ class EverlightsFlowHandler(ConfigFlow, domain=DOMAIN):
             session=async_get_clientsession(self.hass),
         )
         await client.async_get_data()
+        self._local_control = client.local_control

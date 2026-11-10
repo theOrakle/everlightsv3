@@ -98,7 +98,8 @@ rules:
     status: done
     comment: "Bridge host can be changed from the integration's menu."
   repair-issues:
-    status: todo
+    status: done
+    comment: Raises a repair notice when the bridge no longer allows local control (firmware B5010+).
   stale-devices:
     status: todo
   # Platinum

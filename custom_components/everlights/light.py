@@ -64,11 +64,16 @@ class EverlightsLight(EverlightsEntity, LightEntity):
         super().__init__(coordinator, entity_description, serial)
         self._sequence_by_alias: dict[str, dict[str, Any]] = {
             sequence["alias"]: sequence
-            for sequence in coordinator.client.sequences
+            for sequence in coordinator.client.sequences or []
             if "alias" in sequence
         }
         self._attr_effect_list = list(self._sequence_by_alias)
         self._attr_effect_list.sort()
+
+    @property
+    def available(self) -> bool:
+        """Unavailable while the bridge has no local control API (firmware B5010+)."""
+        return super().available and self.coordinator.client.local_control
 
     @property
     def is_on(self) -> bool:

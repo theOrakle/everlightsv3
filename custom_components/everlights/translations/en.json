@@ -23,7 +23,14 @@
     "error": {
       "invalid_auth": "The bridge rejected the request.",
       "cannot_connect": "Unable to connect to the bridge.",
-      "unknown": "Unexpected error."
+      "unknown": "Unexpected error.",
+      "local_control_removed": "This bridge's firmware (B5010 or newer) no longer allows local control, so lights cannot be controlled from Home Assistant. Everlights moved control to their cloud."
+    }
+  },
+  "issues": {
+    "local_control_removed": {
+      "title": "Everlights bridge no longer allows local control",
+      "description": "The bridge's firmware (B5010 or newer) removed the local control API and moved control to the Everlights cloud. Lights can no longer be controlled from Home Assistant; only the signal and status sensors still work. This integration will resume control automatically if Everlights restores local access."
     }
   }
 }
