@@ -9,7 +9,10 @@
 
 Home Assistant integration for Everlights v3 permanent holiday lights.
 
-It talks to your Everlights bridge on the local network (no cloud). Each zone becomes a device with a light entity (colour and effect control) and diagnostic sensors for signal strength and the last request and response timestamps. The bridge is polled every 30 seconds.
+> [!WARNING]
+> **Local control no longer works on bridge firmware B5010 (released 2026-10-30).** Everlights removed the local API on purpose and moved control to their cloud; they have confirmed this to users (see [issue #4](https://github.com/theOrakle/everlightsv3/issues/4)). On B5010 every control endpoint (`/v1/zones`, `/v1/sequences`, ...) returns `410 Gone` with `{"cloud": true}`, so this integration can no longer set colours or effects and fails setup with "will retry". Only a read-only status page (`GET /v1`) still answers. Bridges often update themselves, so check yours in the Everlights app. There is no known way to downgrade. Local control will return only if Everlights restores it; if you want it back, please ask [Everlights support](https://myeverlights.com/contact-support/). Cloud support is not planned yet.
+
+It talks to your Everlights bridge on the local network (no cloud). This only works with bridge firmware older than B5010 (see the notice above). Each zone becomes a device with a light entity (colour and effect control) and diagnostic sensors for signal strength and the last request and response timestamps. The bridge is polled every 30 seconds.
 
 **Note: This will override the existing everlights domain.  DO NOT USE if you use the older version from the core components.**
 
